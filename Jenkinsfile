@@ -13,9 +13,12 @@ pipeline {
 //         }
         stage('Building image') {
             steps{
-                script {
-                    dockerImage = docker.build registry + ":$BUILD_ID"
-                }
+                sh '''
+                    echo "Hello"
+                '''
+//                 script {
+//                     dockerImage = docker.build registry + ":$BUILD_ID"
+//                 }
             }
         }
         stage('Push Image to ECR') {
