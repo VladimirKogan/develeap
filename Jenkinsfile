@@ -6,11 +6,11 @@ pipeline {
         dockerImage = ''
     }
     stages {
-        stage('Cloning Git') {
-            steps {
-                git 'https://github.com/VladimirKogan/develeap.git'
-            }
-        }
+//         stage('Cloning Git') {
+//             steps {
+//                 git 'https://github.com/VladimirKogan/develeap.git'
+//             }
+//         }
         stage('Building image') {
             steps{
                 script {
