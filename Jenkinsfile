@@ -14,7 +14,7 @@ pipeline {
         stage('Building image') {
             steps{
                 sh '''
-                    echo "Hello"
+                    echo "Hello1"
                 '''
 //                 script {
 //                     dockerImage = docker.build registry + ":$BUILD_ID"
