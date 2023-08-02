@@ -13,6 +13,7 @@ pipeline {
 //         }
         stage('Building image') {
             steps{
+                sh 'docker build -t my-image .'
                 sh '''
                     echo "Hello1"
                 '''
