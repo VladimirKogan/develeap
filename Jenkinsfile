@@ -4,6 +4,10 @@ pipeline {
         registry = "538535932316.dkr.ecr.eu-central-1.amazonaws.com/develeap"
         registryCredential = 'aws_credentials'
         dockerImage = ''
+        LOCAL_IMAGE_NAME = "develeap_i"
+        AWS_REGION = "eu-central-1"
+        ECR_REPO_NAME  = "develeap"
+        next_version = "next_v"
     }
     stages {
 //         stage('Cloning Git') {
@@ -13,7 +17,7 @@ pipeline {
 //         }
         stage('Building image') {
             steps{
-                sh 'docker build -t my-image .'
+                sh 'docker build -t ${LOCAL_IMAGE_NAME} .'
                 sh '''
                     echo "Hello1"
                 '''
@@ -24,12 +28,31 @@ pipeline {
         }
         stage('Push Image to ECR') {
             steps{
-                script {
-                    docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push("$BUILD_ID")
-                        dockerImage.push("latest")
+                withAWS(credentials: registryCredential, region: AWS_REGION){
+                    script {
+                        // def image_id = sh(returnStdout: true, script: "docker images --format \"{{.ID}} {{.Repository}}\" | grep ${LOCAL_IMAGE_NAME}  | awk '{print \$1}'").trim()
+                        // env.image_id = image_id
+                        def ecr_password = sh(returnStdout: true, script: "aws ecr get-login-password").trim()
+                        sh """
+                            set +x
+                            docker login -u AWS -p ${ecr_password} ${ECR_REPO_NAME} && \
+                            set -x
+                        docker tag ${LOCAL_IMAGE_NAME}:latest ${ECR_REPO_NAME}:${next_version} && \
+                        docker push ${ECR_REPO_NAME}:${next_version}
+                        # tag with latest also
+                        docker tag ${ECR_REPO_NAME}:${next_version} ${ECR_REPO_NAME}:latest && \
+                        docker push ${ECR_REPO_NAME}:latest
+                        """
+
+                        env.NEW_IMAGE_VERSION = "${ECR_REPO_NAME}:latest"
                     }
                 }
+//                 script {
+//                     docker.withRegistry( '', registryCredential ) {
+//                         dockerImage.push("$BUILD_ID")
+//                         dockerImage.push("latest")
+//                     }
+//                 }
             }
         }
     }
