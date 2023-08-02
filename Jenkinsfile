@@ -30,13 +30,18 @@ pipeline {
             steps{
                 withAWS(credentials: registryCredential, region: AWS_REGION){
                     script {
+                        sh """
+                            aws s3 ls
+                        """
                         // def image_id = sh(returnStdout: true, script: "docker images --format \"{{.ID}} {{.Repository}}\" | grep ${LOCAL_IMAGE_NAME}  | awk '{print \$1}'").trim()
                         // env.image_id = image_id
                         def ecr_password = sh(returnStdout: true, script: "aws ecr get-login-password").trim()
+                        echo "Hello1"
                         sh """
                             set +x
                             docker login -u AWS -p ${ecr_password} ${ECR_REPO_NAME} && \
                             set -x
+                            echo "Hello2"
                         docker tag ${LOCAL_IMAGE_NAME}:latest ${ECR_REPO_NAME}:${next_version} && \
                         docker push ${ECR_REPO_NAME}:${next_version}
                         # tag with latest also
