@@ -7,7 +7,7 @@ pipeline {
         LOCAL_IMAGE_NAME = "develeap_i"
         AWS_REGION = "eu-central-1"
         ECR_REPO_NAME  = "develeap"
-        next_version = "1.0.16"
+        next_version = "1.0.17"
     }
     stages {
 //         stage('Cloning Git') {
@@ -39,7 +39,7 @@ pipeline {
                             set -x
                         docker tag ${LOCAL_IMAGE_NAME}:latest ${ECR_REPO_NAME}:${next_version} && \
                         echo 'tag ok'
-                        docker push ${ECR_REPO_NAME}:${next_version}
+                        docker push ${registry}:${next_version}
                         ech 'push OK'
                         """
 
