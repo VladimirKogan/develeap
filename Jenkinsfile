@@ -7,7 +7,7 @@ pipeline {
         LOCAL_IMAGE_NAME = "develeap_i"
         AWS_REGION = "eu-central-1"
         ECR_REPO_NAME  = "develeap"
-        next_version = "next_v"
+        next_version = "1.0.16"
     }
     stages {
 //         stage('Cloning Git') {
@@ -30,26 +30,23 @@ pipeline {
             steps{
                 withAWS(credentials: registryCredential, region: AWS_REGION){
                     script {
-                        sh """
-                            aws s3 ls
-                        """
                         // def image_id = sh(returnStdout: true, script: "docker images --format \"{{.ID}} {{.Repository}}\" | grep ${LOCAL_IMAGE_NAME}  | awk '{print \$1}'").trim()
                         // env.image_id = image_id
                         def ecr_password = sh(returnStdout: true, script: "aws ecr get-login-password").trim()
-                        echo "Hello1"
                         sh """
                             set +x
                             docker login -u AWS -p ${ecr_password} ${ECR_REPO_NAME} && \
                             set -x
-                            echo "Hello2"
                         docker tag ${LOCAL_IMAGE_NAME}:latest ${ECR_REPO_NAME}:${next_version} && \
+                        echo 'tag ok'
                         docker push ${ECR_REPO_NAME}:${next_version}
-                        # tag with latest also
-                        docker tag ${ECR_REPO_NAME}:${next_version} ${ECR_REPO_NAME}:latest && \
-                        docker push ${ECR_REPO_NAME}:latest
+                        ech 'push OK'
                         """
 
                         env.NEW_IMAGE_VERSION = "${ECR_REPO_NAME}:latest"
+                        sh """
+                            echo "finish"
+                        """
                     }
                 }
 //                 script {
