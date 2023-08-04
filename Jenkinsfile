@@ -6,8 +6,8 @@ pipeline {
         dockerImage = ''
         LOCAL_IMAGE_NAME = "develeap_i"
         AWS_REGION = "eu-central-1"
-        ECR_REPO_NAME  = "develeap"
-        next_version = "1.0.17"
+        ECR_REPO_NAME  = "538535932316.dkr.ecr.eu-central-1.amazonaws.com/develeap"
+        next_version = "1.0.18"
     }
     stages {
 //         stage('Cloning Git') {
@@ -37,10 +37,14 @@ pipeline {
                             set +x
                             docker login -u AWS -p ${ecr_password} ${ECR_REPO_NAME} && \
                             set -x
-                        docker tag ${LOCAL_IMAGE_NAME}:latest ${ECR_REPO_NAME}:${next_version} && \
-                        echo 'tag ok'
-                        docker push ${registry}:${next_version}
-                        ech 'push OK'
+                        docker tag ${LOCAL_IMAGE_NAME}:${next_version} ${ECR_REPO_NAME}:${next_version} && \
+
+                        docker push ${ECR_REPO_NAME}:${next_version}
+                        echo 'push 1 OK'
+                        # tag with latest also
+                        docker tag ${LOCAL_IMAGE_NAME}:${latest} ${ECR_REPO_NAME}:latest && \
+                        docker push ${ECR_REPO_NAME}:latest
+                        echo 'tag + push 2 OK'
                         """
 
                         env.NEW_IMAGE_VERSION = "${ECR_REPO_NAME}:latest"
